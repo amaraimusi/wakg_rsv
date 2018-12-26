@@ -1,0 +1,10 @@
+@charset "UTF-8";
+
+#buta_tbl{
+	/* Edgeのth幅指定不能防止 */
+	table-layout: fixed;
+}
+
+#buta_tbl thead .note{
+	width:200px;
+}
