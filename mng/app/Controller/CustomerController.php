@@ -8,8 +8,8 @@ App::uses('PagenationForCake', 'Vendor/Wacg');
  * @note
  * お客一覧画面ではお客一覧一覧を検索閲覧、編集など多くのことができます。
  * 
- * @date 2015-9-16 | 2018-10-10
- * @version 3.2.2
+ * @date 2018-12-27
+ * @version 0.8.0
  *
  */
 class CustomerController extends CrudBaseController {

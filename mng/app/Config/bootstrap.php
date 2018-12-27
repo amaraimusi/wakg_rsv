@@ -108,6 +108,7 @@ CakeLog::config('error', array(
 
 
 config('crud_base_const');//CrudBase定数ファイル
+config('wakg_rsv_const');// 見本予約システム用の定数
 
 
 

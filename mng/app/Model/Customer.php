@@ -5,8 +5,8 @@ App::uses('CrudBase', 'Model');
 /**
  * お客一覧のCakePHPモデルクラス
  *
- * @date 2015-9-16 | 2018-10-10
- * @version 3.1.2
+ * @date 2018-12-27
+ * @version 0.8.0
  *
  */
 class Customer extends AppModel {

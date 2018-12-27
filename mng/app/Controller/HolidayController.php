@@ -3,28 +3,28 @@ App::uses('CrudBaseController', 'Controller');
 App::uses('PagenationForCake', 'Vendor/Wacg');
 
 /**
- * レンタルアイテム
+ * 休日管理
  * 
  * @note
- * レンタルアイテム画面ではレンタルアイテム一覧を検索閲覧、編集など多くのことができます。
+ * 休日管理画面では休日管理一覧を検索閲覧、編集など多くのことができます。
  * 
  * @date 2018-12-27
  * @version 0.8.0
  *
  */
-class RentalItemController extends CrudBaseController {
+class HolidayController extends CrudBaseController {
 
 	/// 名称コード
-	public $name = 'RentalItem';
+	public $name = 'Holiday';
 	
 	/// 使用しているモデル[CakePHPの機能]
-	public $uses = array('RentalItem','CrudBase');
+	public $uses = array('Holiday','CrudBase');
 	
 	/// オリジナルヘルパーの登録[CakePHPの機能]
 	public $helpers = array('CrudBase');
 
 	/// デフォルトの並び替え対象フィールド
-	public $defSortFeild='RentalItem.sort_no';
+	public $defSortFeild='Holiday.sort_no';
 	
 	/// デフォルトソートタイプ	  0:昇順 1:降順
 	public $defSortType=0;
@@ -52,7 +52,7 @@ class RentalItemController extends CrudBaseController {
 	
 	/// 経由パスマッピング
 	public $viaDpFnMap = array(); // 例　'img_fn'=>'img_via_dp'
-	//public $viaDpFnMap = array('img_fn'=>'rental_item_group');
+	//public $viaDpFnMap = array('img_fn'=>'holiday_group');
 
 
 
@@ -72,7 +72,7 @@ class RentalItemController extends CrudBaseController {
 	/**
 	 * indexページのアクション
 	 *
-	 * indexページではレンタルアイテム一覧を検索閲覧できます。
+	 * indexページでは休日管理一覧を検索閲覧できます。
 	 * 一覧のidから詳細画面に遷移できます。
 	 * ページネーション、列名ソート、列表示切替、CSVダウンロード機能を備えます。
 	 */
@@ -80,21 +80,26 @@ class RentalItemController extends CrudBaseController {
 		
 		
 		// CrudBase共通処理（前）
-		$crudBaseData = $this->indexBefore('RentalItem');//indexアクションの共通先処理(CrudBaseController)
+		$crudBaseData = $this->indexBefore('Holiday');//indexアクションの共通先処理(CrudBaseController)
 		
 		//一覧データを取得
-		$data = $this->RentalItem->findData($crudBaseData);
+		$data = $this->Holiday->findData($crudBaseData);
 
 		// CrudBase共通処理（後）
 		$crudBaseData = $this->indexAfter($crudBaseData);//indexアクションの共通後処理
 		
 		// CBBXS-1020
 
+		// 休日タイプリスト
+		$holidayTypeList = $this->Holiday->getHolidayTypeList();
+		$holiday_type_json = json_encode($holidayTypeList,JSON_HEX_TAG | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_HEX_APOS);
+		$this->set(array('holidayTypeList' => $holidayTypeList,'holiday_type_json' => $holiday_type_json));
+
 		// CBBXE
 		
 		$this->set($crudBaseData);
 		$this->set(array(
-			'title_for_layout'=>'レンタルアイテム',
+			'title_for_layout'=>'休日管理',
 			'data'=> $data,
 		));
 		
@@ -149,9 +154,9 @@ class RentalItemController extends CrudBaseController {
 		$ent = $this->setCommonToEntity($ent);
 	
 		// エンティティをDB保存
-		$this->RentalItem->begin();
-		$ent = $this->RentalItem->saveEntity($ent,$regParam);
-		$this->RentalItem->commit();//コミット
+		$this->Holiday->begin();
+		$ent = $this->Holiday->saveEntity($ent,$regParam);
+		$this->Holiday->commit();//コミット
 		
 		// ファイルアップロード関連の一括作業
 		$res = $this->workFileUploads($form_type,$this->dp_tmpl, $this->viaDpFnMap, $ent, $_FILES);
@@ -202,14 +207,14 @@ class RentalItemController extends CrudBaseController {
 		$ent['delete_flg'] = $ent0['delete_flg'];
 	
 		// エンティティをDB保存
-		$this->RentalItem->begin();
+		$this->Holiday->begin();
 		if($eliminate_flg == 0){
-			$ent = $this->RentalItem->saveEntity($ent,$regParam); // 更新
+			$ent = $this->Holiday->saveEntity($ent,$regParam); // 更新
 		}else{
-			$this->RentalItem->eliminateFiles($ent['id'], 'img_fn', $ent, $this->dp_tmpl, $this->viaDpFnMap); // ファイル抹消（他のレコードが保持しているファイルは抹消対象外）
-			$this->RentalItem->delete($ent['id']); // 削除
+			$this->Holiday->eliminateFiles($ent['id'], 'img_fn', $ent, $this->dp_tmpl, $this->viaDpFnMap); // ファイル抹消（他のレコードが保持しているファイルは抹消対象外）
+			$this->Holiday->delete($ent['id']); // 削除
 		}
-		$this->RentalItem->commit();//コミット
+		$this->Holiday->commit();//コミット
 	
 		$ent=Sanitize::clean($ent, array('encode' => true));//サニタイズ（XSS対策）
 		$json_data=json_encode($ent);//JSONに変換
@@ -237,9 +242,9 @@ class RentalItemController extends CrudBaseController {
 		$data = json_decode($json,true);//JSON文字を配列に戻す
 		
 		// データ保存
-		$this->RentalItem->begin();
-		$this->RentalItem->saveAll($data); // まとめて保存。内部でSQLサニタイズされる。
-		$this->RentalItem->commit();
+		$this->Holiday->begin();
+		$this->Holiday->saveAll($data); // まとめて保存。内部でSQLサニタイズされる。
+		$this->Holiday->commit();
 
 		$res = array('success');
 		
@@ -261,7 +266,7 @@ class RentalItemController extends CrudBaseController {
 		$this->autoRender = false;//ビュー(ctp)を使わない。
 		if(empty($this->Auth->user())) return 'Error:login is needed.';// 認証中でなければエラー
 		
-		$this->csv_fu_base($this->RentalItem,array('id','rental_item_val','rental_item_name','rental_item_date','rental_item_group','rental_item_dt','rental_item_flg','img_fn','note','sort_no'));
+		$this->csv_fu_base($this->Holiday,array('id','holiday_val','holiday_name','holiday_date','holiday_group','holiday_dt','holiday_flg','img_fn','note','sort_no'));
 		
 	}
 	
@@ -304,7 +309,7 @@ class RentalItemController extends CrudBaseController {
 		//CSVファイル名を作成
 		$date = new DateTime();
 		$strDate=$date->format("Y-m-d");
-		$fn='rental_item'.$strDate.'.csv';
+		$fn='holiday'.$strDate.'.csv';
 	
 	
 		//CSVダウンロード
@@ -325,10 +330,10 @@ class RentalItemController extends CrudBaseController {
 		 
 		
 		//セッションから検索条件情報を取得
-		$kjs=$this->Session->read('rental_item_kjs');
+		$kjs=$this->Session->read('holiday_kjs');
 		
 		// セッションからページネーション情報を取得
-		$pages = $this->Session->read('rental_item_pages');
+		$pages = $this->Session->read('holiday_pages');
 
 		$page_no = 0;
 		$row_limit = 100000;
@@ -346,7 +351,7 @@ class RentalItemController extends CrudBaseController {
 		
 
 		//DBからデータ取得
-		$data=$this->RentalItem->findData($crudBaseData);
+		$data=$this->Holiday->findData($crudBaseData);
 		if(empty($data)){
 			return array();
 		}
@@ -394,7 +399,9 @@ class RentalItemController extends CrudBaseController {
 				array('name'=>'kj_main','def'=>null),
 				// CBBXS-1000 
 			array('name'=>'kj_id','def'=>null),
-			array('name'=>'kj_rental_item_name','def'=>null),
+			array('name'=>'kj_holiday_name','def'=>null),
+			array('name'=>'kj_holiday_date','def'=>null),
+			array('name'=>'kj_holiday_type','def'=>null),
 			array('name'=>'kj_note','def'=>null),
 			array('name'=>'kj_sort_no','def'=>null),
 			array('name'=>'kj_delete_flg','def'=>0),
@@ -424,10 +431,24 @@ class RentalItemController extends CrudBaseController {
 								'allowEmpty' => true
 						),
 				),
-				'kj_rental_item_name'=> array(
+				'kj_holiday_name'=> array(
 						'maxLength'=>array(
 								'rule' => array('maxLength', 255),
-								'message' => 'レンタルアイテム名は255文字以内で入力してください',
+								'message' => '休日名は255文字以内で入力してください',
+								'allowEmpty' => true
+						),
+				),
+				'kj_holiday_date'=> array(
+						'maxLength'=>array(
+								'rule' => array('maxLength', 20),
+								'message' => '休日日付は20文字以内で入力してください',
+								'allowEmpty' => true
+						),
+				),
+				'kj_holiday_type' => array(
+						'custom'=>array(
+								'rule' => array( 'custom', '/^[-]?[0-9]+$/' ),
+								'message' => '休日タイプは整数を入力してください。',
 								'allowEmpty' => true
 						),
 				),
@@ -487,47 +508,57 @@ class RentalItemController extends CrudBaseController {
 			// CBBXS-1002
 			'id'=>array(
 					'name'=>'ID',//HTMLテーブルの列名
-					'row_order'=>'RentalItem.id',//SQLでの並び替えコード
+					'row_order'=>'Holiday.id',//SQLでの並び替えコード
 					'clm_show'=>1,//デフォルト列表示 0:非表示 1:表示
 			),
-			'rental_item_name'=>array(
-					'name'=>'レンタルアイテム名',
-					'row_order'=>'RentalItem.rental_item_name',
+			'holiday_name'=>array(
+					'name'=>'休日名',
+					'row_order'=>'Holiday.holiday_name',
+					'clm_show'=>1,
+			),
+			'holiday_date'=>array(
+					'name'=>'休日日付',
+					'row_order'=>'Holiday.holiday_date',
+					'clm_show'=>1,
+			),
+			'holiday_type'=>array(
+					'name'=>'休日タイプ',
+					'row_order'=>'Holiday.holiday_type',
 					'clm_show'=>1,
 			),
 			'note'=>array(
 					'name'=>'備考',
-					'row_order'=>'RentalItem.note',
+					'row_order'=>'Holiday.note',
 					'clm_show'=>1,
 			),
 			'sort_no'=>array(
 					'name'=>'順番',
-					'row_order'=>'RentalItem.sort_no',
-					'clm_show'=>1,
+					'row_order'=>'Holiday.sort_no',
+					'clm_show'=>0,
 			),
 			'delete_flg'=>array(
 					'name'=>'無効フラグ',
-					'row_order'=>'RentalItem.delete_flg',
-					'clm_show'=>1,
+					'row_order'=>'Holiday.delete_flg',
+					'clm_show'=>0,
 			),
 			'update_user'=>array(
 					'name'=>'更新者',
-					'row_order'=>'RentalItem.update_user',
+					'row_order'=>'Holiday.update_user',
 					'clm_show'=>0,
 			),
 			'ip_addr'=>array(
 					'name'=>'IPアドレス',
-					'row_order'=>'RentalItem.ip_addr',
+					'row_order'=>'Holiday.ip_addr',
 					'clm_show'=>0,
 			),
 			'created'=>array(
 					'name'=>'生成日時',
-					'row_order'=>'RentalItem.created',
+					'row_order'=>'Holiday.created',
 					'clm_show'=>0,
 			),
 			'modified'=>array(
 					'name'=>'更新日',
-					'row_order'=>'RentalItem.modified',
+					'row_order'=>'Holiday.modified',
 					'clm_show'=>0,
 			),
 

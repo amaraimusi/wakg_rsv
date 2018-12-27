@@ -3,18 +3,18 @@ App::uses('Model', 'Model');
 App::uses('CrudBase', 'Model');
 
 /**
- * レンタルアイテムのCakePHPモデルクラス
+ * 休日管理のCakePHPモデルクラス
  *
  * @date 2018-12-27
  * @version 0.8.0
  *
  */
-class RentalItem extends AppModel {
+class Holiday extends AppModel {
 
-	public $name='RentalItem';
+	public $name='Holiday';
 	
 	// 関連付けるテーブル CBBXS-1040
-	public $useTable = 'rental_items';
+	public $useTable = 'holidays';
 
 	// CBBXE
 
@@ -31,12 +31,12 @@ class RentalItem extends AppModel {
 	}
 	
 	/**
-	 * レンタルアイテムエンティティを取得
+	 * 休日管理エンティティを取得
 	 *
-	 * レンタルアイテムテーブルからidに紐づくエンティティを取得します。
+	 * 休日管理テーブルからidに紐づくエンティティを取得します。
 	 *
-	 * @param int $id レンタルアイテムID
-	 * @return array レンタルアイテムエンティティ
+	 * @param int $id 休日管理ID
+	 * @return array 休日管理エンティティ
 	 */
 	public function findEntity($id){
 
@@ -52,7 +52,7 @@ class RentalItem extends AppModel {
 
 		$ent=array();
 		if(!empty($data)){
-			$ent=$data['RentalItem'];
+			$ent=$data['Holiday'];
 		}
 		
 
@@ -66,7 +66,7 @@ class RentalItem extends AppModel {
 	
 	/**
 	 * 一覧データを取得する
-	 * @return array レンタルアイテム画面一覧のデータ
+	 * @return array 休日管理画面一覧のデータ
 	 */
 	public function findData(&$crudBaseData){
 
@@ -124,10 +124,10 @@ class RentalItem extends AppModel {
 	private function dumpSql($option){
 		$dbo = $this->getDataSource();
 		
-		$option['table']=$dbo->fullTableName($this->RentalItem);
-		$option['alias']='RentalItem';
+		$option['table']=$dbo->fullTableName($this->Holiday);
+		$option['alias']='Holiday';
 		
-		$query = $dbo->buildStatement($option,$this->RentalItem);
+		$query = $dbo->buildStatement($option,$this->Holiday);
 		
 		Debugger::dump($query);
 	}
@@ -146,41 +146,49 @@ class RentalItem extends AppModel {
 		$this->CrudBase->sql_sanitize($kjs); // SQLサニタイズ
 		
 		if(!empty($kjs['kj_main'])){
-			$cnds[]="CONCAT( IFNULL(RentalItem.rental_item_name, '') ,IFNULL(RentalItem.note, '')) LIKE '%{$kjs['kj_main']}%'";
+			$cnds[]="CONCAT( IFNULL(Holiday.holiday_name, '') ,IFNULL(Holiday.holiday_date, '') ,IFNULL(Holiday.note, '')) LIKE '%{$kjs['kj_main']}%'";
 		}
 		
 		// CBBXS-1003
 		if(!empty($kjs['kj_id']) || $kjs['kj_id'] ==='0' || $kjs['kj_id'] ===0){
-			$cnds[]="RentalItem.id = {$kjs['kj_id']}";
+			$cnds[]="Holiday.id = {$kjs['kj_id']}";
 		}
-		if(!empty($kjs['kj_rental_item_name'])){
-			$cnds[]="RentalItem.rental_item_name LIKE '%{$kjs['kj_rental_item_name']}%'";
+		if(!empty($kjs['kj_holiday_name'])){
+			$cnds[]="Holiday.holiday_name LIKE '%{$kjs['kj_holiday_name']}%'";
+		}
+		if(!empty($kjs['kj_holiday_date'])){
+			$kj_holiday_date = $kjs['kj_holiday_date'];
+			$dtInfo = $this->CrudBase->guessDatetimeInfo($kj_holiday_date);
+			$cnds[]="DATE_FORMAT(Holiday.holiday_date,'{$dtInfo['format_mysql_a']}') = DATE_FORMAT('{$dtInfo['datetime_b']}','{$dtInfo['format_mysql_a']}')";
+		}
+		if(!empty($kjs['kj_holiday_type']) || $kjs['kj_holiday_type'] ==='0' || $kjs['kj_holiday_type'] ===0){
+			$cnds[]="Holiday.holiday_type = {$kjs['kj_holiday_type']}";
 		}
 		if(!empty($kjs['kj_note'])){
-			$cnds[]="RentalItem.note LIKE '%{$kjs['kj_note']}%'";
+			$cnds[]="Holiday.note LIKE '%{$kjs['kj_note']}%'";
 		}
 		if(!empty($kjs['kj_sort_no']) || $kjs['kj_sort_no'] ==='0' || $kjs['kj_sort_no'] ===0){
-			$cnds[]="RentalItem.sort_no = {$kjs['kj_sort_no']}";
+			$cnds[]="Holiday.sort_no = {$kjs['kj_sort_no']}";
 		}
 		$kj_delete_flg = $kjs['kj_delete_flg'];
 		if(!empty($kjs['kj_delete_flg']) || $kjs['kj_delete_flg'] ==='0' || $kjs['kj_delete_flg'] ===0){
 			if($kjs['kj_delete_flg'] != -1){
-			   $cnds[]="RentalItem.delete_flg = {$kjs['kj_delete_flg']}";
+			   $cnds[]="Holiday.delete_flg = {$kjs['kj_delete_flg']}";
 			}
 		}
 		if(!empty($kjs['kj_update_user'])){
-			$cnds[]="RentalItem.update_user LIKE '%{$kjs['kj_update_user']}%'";
+			$cnds[]="Holiday.update_user LIKE '%{$kjs['kj_update_user']}%'";
 		}
 		if(!empty($kjs['kj_ip_addr'])){
-			$cnds[]="RentalItem.ip_addr LIKE '%{$kjs['kj_ip_addr']}%'";
+			$cnds[]="Holiday.ip_addr LIKE '%{$kjs['kj_ip_addr']}%'";
 		}
 		if(!empty($kjs['kj_created'])){
 			$kj_created=$kjs['kj_created'].' 00:00:00';
-			$cnds[]="RentalItem.created >= '{$kj_created}'";
+			$cnds[]="Holiday.created >= '{$kj_created}'";
 		}
 		if(!empty($kjs['kj_modified'])){
 			$kj_modified=$kjs['kj_modified'].' 00:00:00';
-			$cnds[]="RentalItem.modified >= '{$kj_modified}'";
+			$cnds[]="Holiday.modified >= '{$kj_modified}'";
 		}
 
 		// CBBXE
@@ -197,13 +205,13 @@ class RentalItem extends AppModel {
 	/**
 	 * エンティティをDB保存
 	 *
-	 * レンタルアイテムエンティティをレンタルアイテムテーブルに保存します。
+	 * 休日管理エンティティを休日管理テーブルに保存します。
 	 *
-	 * @param array $ent レンタルアイテムエンティティ
+	 * @param array $ent 休日管理エンティティ
 	 * @param array $option オプション
 	 *  - form_type フォーム種別  new_inp:新規入力 , copy:複製 , edit:編集
 	 *  - ni_tr_place 新規入力追加場所フラグ 0:末尾 , 1:先頭
-	 * @return array レンタルアイテムエンティティ（saveメソッドのレスポンス）
+	 * @return array 休日管理エンティティ（saveメソッドのレスポンス）
 	 */
 	public function saveEntity($ent,$option=array()){
 
@@ -223,10 +231,10 @@ class RentalItem extends AppModel {
 		//DBからエンティティを取得
 		$ent = $this->find('first',
 				array(
-						'conditions' => "id={$ent['RentalItem']['id']}"
+						'conditions' => "id={$ent['Holiday']['id']}"
 				));
 
-		$ent=$ent['RentalItem'];
+		$ent=$ent['Holiday'];
 		if(empty($ent['delete_flg'])) $ent['delete_flg'] = 0;
 
 		return $ent;
@@ -281,6 +289,14 @@ class RentalItem extends AppModel {
 	
 	
 	// CBBXS-1021
+	/**
+	 * 休日タイプリストを設定定数から取得する
+	 */
+	public function getHolidayTypeList(){
+		
+		$holidayTypeList = Configure::read('holidayTypeList');
+		return $holidayTypeList;
+	}
 
 	// CBBXE
 
